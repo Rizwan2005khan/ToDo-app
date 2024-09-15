@@ -1,95 +1,83 @@
-const todoInput = document.querySelector('.todo-input');
-const todoBtn = document.querySelector('.todo-btn');
-const todoList = document.querySelector('.todo-list');
+const todoInput = document.querySelector('.todo-input')
+const todoBtn = document.querySelector('.todo-btn')
+const todoList = document.querySelector('.todo-list')
 
-todoBtn.addEventListener('click', addTodo);
-todoList.addEventListener('click', handleTodoClick);
+todoBtn.addEventListener('click', addTodo)
+todoList.addEventListener('click', handleTodoClick)
 
-function addTodo(event) {
-    event.preventDefault();
-    if (todoInput.value !== '') {
-        const todoDiv = document.createElement('div');
-        todoDiv.className = 'todo';
+function addTodo(event){
+    event.preventDefault()
 
-        const newTodo = document.createElement('li');
-        newTodo.className = 'todo-item';
-        newTodo.innerText = todoInput.value;
-        todoDiv.appendChild(newTodo);
-        todoInput.value = '';
+    if(todoInput.value !== ''){
+        const todoDiv = document.createElement('div')
+        todoDiv.className = 'todo'
+        todoList.appendChild(todoDiv)
 
-        createAndAppendButtons(todoDiv);
+        const newTodo = document.createElement('li')
+        newTodo.className = 'todo-item'
+        newTodo.innerText = todoInput.value
+        todoInput.value = ''
+        todoDiv.appendChild(newTodo)
 
-        todoList.appendChild(todoDiv);
+        const completeBtn = document.createElement('button')
+        completeBtn.className = 'complete-btn'
+        completeBtn.innerText = '✔️'
+        todoDiv.appendChild(completeBtn)
+
+        const editBtn = document.createElement('button')
+        editBtn.className = 'edit-btn'
+        editBtn.innerText = '✏️'
+        todoDiv.appendChild(editBtn)
+
+        const trashBtn = document.createElement('button')
+        trashBtn.className = 'trash-btn'
+        trashBtn.innerText = '❌'
+        todoDiv.appendChild(trashBtn)
     }
 }
 
-function createAndAppendButtons(todoDiv) {
-    const existingButtons = todoDiv.querySelectorAll('button');
-    existingButtons.forEach(button => button.remove());
-
-    const completedBtn = document.createElement('button');
-    completedBtn.innerText = '✔️';
-    completedBtn.classList.add('complete-btn');
-    todoDiv.appendChild(completedBtn);
-
-    const editBtn = document.createElement('button');
-    editBtn.innerText = '✏️';
-    editBtn.classList.add('edit-btn');
-    todoDiv.appendChild(editBtn);
-
-    const trashBtn = document.createElement('button');
-    trashBtn.innerText = '❌';
-    trashBtn.classList.add('trash-btn');
-    todoDiv.appendChild(trashBtn);
-}
-
-function handleTodoClick(e) {
+function handleTodoClick(e){
     const item = e.target;
 
-    if (item.classList.contains('trash-btn')) {
-        deleteTodoItem(item);
-    } else if (item.classList.contains('complete-btn')) {
-        toggleComplete(item);
-    } else if (item.classList.contains('edit-btn')) {
-        editTodoItem(item);
+    if(item.classList[0] === 'complete-btn'){
+        const todo = item.parentElement.querySelector('.todo-item')
+        todo.classList.toggle('completed')
+    }
+    else if(item.classList[0] === 'edit-btn'){
+        editTodoInput(item)
+    }
+    else if(item.classList[0] === 'trash-btn'){
+        const todo = item.parentElement
+        todo.classList.add('fade-away')
+
+        todo.addEventListener('transitionend', () => {
+            todo.remove()
+        })
     }
 }
 
-function deleteTodoItem(item) {
-    const todo = item.parentElement;
-    todo.classList.add('fade-away');
-    todo.addEventListener('transitionend', () => todo.remove());
-}
+function editTodoInput(item){
+    const todo = item.parentElement.querySelector('.todo-item')
+    const editInput = document.createElement('input')
+    editInput.type = 'text'
+    editInput.className = 'edit-input'
+    editInput.value = todo.innerText
 
-function toggleComplete(item) {
-    const todoItem = item.parentElement.querySelector('.todo-item');
-    todoItem.classList.toggle('completed');
-}
+    todo.replaceWith(editInput)
+    editInput.focus()
 
-function editTodoItem(item) {
-    const todoItem = item.parentElement.querySelector('.todo-item');
-    const editInput = document.createElement('input');
-    editInput.type = 'text';
-    editInput.className = 'edit-input';
-    editInput.value = todoItem.innerText;
-
-    todoItem.replaceWith(editInput);
-    editInput.focus();
-
-    editInput.addEventListener('blur', () => saveEditedTodoItem(item.parentElement, editInput));
+    editInput.addEventListener('blur', () => saveEditedTodoInput(item.parentElement, editInput))
     editInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            saveEditedTodoItem(item.parentElement, editInput);
+        if(e.key === 'Enter'){
+            saveEditedTodoInput(item.parentElement, editInput)
         }
-    });
+    })
 }
 
-function saveEditedTodoItem(todoDiv, editInput) {
-    const updatedTodo = document.createElement('li');
-    updatedTodo.className = 'todo-item';
-    updatedTodo.innerText = editInput.value;
+function saveEditedTodoInput(todoDiv, editInput){
+    const updateTodo = document.createElement('li')
+    updateTodo.className = 'todo-item'
+    updateTodo.innerText = editInput.value
 
-    editInput.replaceWith(updatedTodo);
-
-    createAndAppendButtons(todoDiv);
+    editInput.replaceWith(updateTodo)
 }
